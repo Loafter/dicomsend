@@ -5,15 +5,15 @@ import (
 	"io/ioutil"
 	"log"
 	"encoding/base64"
-	/*"os"
-	"io"*/
 	"crypto/rand"
 	"fmt"
+	"os"
+	"io"
 )
 type UpSrv struct {
 
 }
-const  htmlData=""
+const htmlData = ""
 const FlushDiskSize = 1024 * 1024
 
 func genUid() string {
@@ -21,11 +21,17 @@ func genUid() string {
 	rand.Read(b)
 	return fmt.Sprintf("%X-%X-%X-%X-%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
+
+func sep() string {
+	st := strconv.QuoteRune(os.PathSeparator)
+	st = st[1 : len(st) - 1]
+	return st
+}
 func (srv *UpSrv) Start(listenPort int) error {
 	http.HandleFunc("/", srv.Redirect)
 	http.HandleFunc("/index.html", srv.index)
 	http.HandleFunc("/upload_dicom", srv.uploadDicom)
-	if err := http.ListenAndServe(":"+strconv.Itoa(listenPort), nil); err != nil {
+	if err := http.ListenAndServe(":" + strconv.Itoa(listenPort), nil); err != nil {
 		return err
 	}
 	return nil
@@ -49,57 +55,35 @@ func (srv *UpSrv) index(rwr http.ResponseWriter, req *http.Request) {
 
 func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	log.Println("try upload")
-	rd,err :=r.MultipartReader()
-	if err!=nil{
-		log.Println("error:"+ err.Error())
-	}
-	//buffer := make([]byte, FlushDiskSize, FlushDiskSize)
-	for p,err:=rd.NextPart();err==nil;p,err=rd.NextPart(){
-
-		/*c,er:=p.Read(buffer){
-			if er!=nil{
-				return
-			}
-		}*/
-		log.Println(p.)
-
-	}
-
-
-	/* err != nil {
-		log.Println(w,err)
+	rd, err := r.MultipartReader()
+	if err != nil {
+		log.Println("error: can't get MultipartReader")
 		return
 	}
-	formdata := r.MultipartForm  // ok, no problem so far, read the Form data
-	//get the *fileheaders
-	files := formdata.File["multiplefiles"]  // grab the filenames
-	for i, _ := range files {  // loop through the files one by one
-		log.Println(i)
-		file, err := files[i].Open()
-		defer file.Close()
-		if err != nil {
-			return
+	buffer := make([]byte, FlushDiskSize)
+	for p, err := rd.NextPart(); err == nil; p, err = rd.NextPart() {
+		if p.FormName() == "files" {
+			//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
+				if f,er:=os.Create("/home/andrew/Desktop/da"+sep()+genUid()); er!=nil{
+
+				log.Println("error: can't create temp file")
+				return
+			}else {
+				log.Println(p)
+				for {
+					if count, e := p.Read(buffer); e == io.EOF {
+						log.Println("info: Last buffer read!")
+						f.Close()
+						break
+					}else {
+						log.Println(count)
+						f.Write(buffer[0:count])
+					}
+
+				}
+			}
 		}
-
-		out, err := os.Create("/tmp/" + files[i].Filename)
-
-		defer out.Close()
-		if err != nil {
-
-			return
-		}
-
-		_, err = io.Copy(out, file) // file not files[i] !
-
-		if err != nil {
-
-			return
-		}
-
-		log.Println(w,"Files uploaded successfully : ")
-		log.Println(w, files[i].Filename + "\n")
-
-	}*/
+	}
 }
+
 
