@@ -1,4 +1,4 @@
-package http_receiver
+package HttpReciver
 
 //import "godownloader/monitor"
 
