@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"dicomsend/http_receiver"
+	"godownloader/monitor"
 	"time"
 )
 
@@ -27,14 +28,11 @@ func sep() string {
 	return st
 }
 type UpSrv struct {
-dicomr *httpreciver.DicomReciver
+drs map[string]*monitor.MonitoredWorker
 }
 
 func (srv *UpSrv) Start(listenPort int) error {
-	var err error
-if srv.dicomr,err=httpreciver.CreateDicomReciver();err!=nil{
-	return err
-}
+	srv.drs=make(map[string]*monitor.MonitoredWorker)
 	http.HandleFunc("/", srv.Redirect)
 	http.HandleFunc("/index.html", srv.index)
 	http.HandleFunc("/upload_dicom", srv.uploadDicom)
@@ -91,12 +89,20 @@ func (srv *UpSrv) index(rwr http.ResponseWriter, req *http.Request) {
 		}
 	}
 }*/
+
+func dummyOnFileDownload(path string)error {
+	log.Println("info: i do some thing with file", path)
+	return nil
+}
+
 func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
-	log.Println("info: accepted new dicom")
-	if err:=srv.dicomr.AddReq(w,r);err!=nil{
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Println("error: can't add req",err)
-		return
+	if fr, err := httpreciver.CreateReciver(w, r, dummyOnFileDownload); err != nil {
+		http.Error(w, "error: can't create reciver", http.StatusInternalServerError)
+	}else {
+		mw := monitor.MonitoredWorker{Itw:fr}
+		srv.drs[mw.GetId()]=&mw
+		mw.Start()
+		mw.Wait()
 	}
 	time.Sleep(10*time.Second)
 }
