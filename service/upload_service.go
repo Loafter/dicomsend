@@ -64,8 +64,7 @@ func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
 	for p, err := rd.NextPart(); err == nil; p, err = rd.NextPart() {
 		if p.FormName() == "files" {
 			//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
-				if f,er:=os.Create("/home/andrew/Desktop/da"+sep()+genUid()); er!=nil{
-
+				if f,er:=os.Create("C:\\Users\\212402712\\Desktop\\Target"+sep()+genUid()); er!=nil{
 				log.Println("error: can't create temp file")
 				return
 			}else {
