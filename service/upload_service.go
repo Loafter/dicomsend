@@ -1,4 +1,4 @@
-package FileReciverSrv
+package filereciversrv
 import (
 	"net/http"
 	"strconv"
@@ -8,11 +8,10 @@ import (
 	"crypto/rand"
 	"fmt"
 	"os"
-	"io"
+	"dicomsend/http_receiver"
+	"time"
 )
-type UpSrv struct {
 
-}
 const htmlData = ""
 const FlushDiskSize = 1024 * 1024
 
@@ -27,7 +26,15 @@ func sep() string {
 	st = st[1 : len(st) - 1]
 	return st
 }
+type UpSrv struct {
+dicomr *httpreciver.DicomReciver
+}
+
 func (srv *UpSrv) Start(listenPort int) error {
+	var err error
+if srv.dicomr,err=httpreciver.CreateDicomReciver();err!=nil{
+	return err
+}
 	http.HandleFunc("/", srv.Redirect)
 	http.HandleFunc("/index.html", srv.index)
 	http.HandleFunc("/upload_dicom", srv.uploadDicom)
@@ -53,7 +60,7 @@ func (srv *UpSrv) index(rwr http.ResponseWriter, req *http.Request) {
 	rwr.Write(content)
 }
 
-func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
+/*func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	rd, err := r.MultipartReader()
 	if err != nil {
@@ -64,7 +71,7 @@ func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
 	for p, err := rd.NextPart(); err == nil; p, err = rd.NextPart() {
 		if p.FormName() == "files" {
 			//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
-				if f,er:=os.Create("C:\\Users\\212402712\\Desktop\\Target"+sep()+genUid()); er!=nil{
+			if f,er:=os.Create("C:\\Users\\andre\\Desktop\\Target"+sep()+genUid()); er!=nil{
 				log.Println("error: can't create temp file")
 				return
 			}else {
@@ -83,6 +90,15 @@ func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+}*/
+func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
+	log.Println("info: accepted new dicom")
+	if err:=srv.dicomr.AddReq(w,r);err!=nil{
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println("error: can't add req",err)
+		return
+	}
+	time.Sleep(10*time.Second)
 }
 
 

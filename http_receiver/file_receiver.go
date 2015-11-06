@@ -1,4 +1,4 @@
-package HttpReciver
+package httpreciver
 import (
 	"net/http"
 	"errors"
@@ -24,13 +24,10 @@ func genUid() string {
 }
 
 //import "godownloader/monitor"
-const FlushDiskSize = 1024 * 1024
-
-func dummyOnFileDownload(path string){
- log.Println("info: i do some thing with file",path)
-}
+const BufferSize = 1024 * 1024
 
 type OnDownloadFunc func(path string)(error)
+
 type FilesReceiver struct {
 	buffer []byte
 	mprd *multipart.Reader
@@ -40,35 +37,36 @@ type FilesReceiver struct {
 
 }
 
-func (fs *FilesReceiver) Init(rw_ http.ResponseWriter,req_ *http.Request)error{
-
-	if req_!=nil{
-		return errors.New("error: empty http request")
+func CreateReciver(rw_ http.ResponseWriter,req_ *http.Request,odf OnDownloadFunc)(*FilesReceiver,error){
+	if req_==nil{
+		return nil,errors.New("error: empty http request")
 	}
+	var fs FilesReceiver
 	fs.rw=rw_
 	fs.req=req_
-	fs.onDown=dummyOnFileDownload
-	return nil
+	fs.onDown=odf
+	return &fs,nil
 }
 func (fs *FilesReceiver) DoWork() (bool, error) {
+
 	p, err := fs.mprd.NextPart()
 	if err!=nil{
-		return false,nil
 		fs.req.Body.Close()
+		return false,err
 	}
 	if p.FormName() == "files" {
 		//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
-		if f,er:=os.Create("C:\\Users\\212402712\\Desktop\\Target"+sep()+genUid()); er!=nil{
+		if f,er:=os.Create("C:\\Users\\andre\\Desktop\\Target"+sep()+genUid()); er!=nil{
 			log.Println("error: can't create temp file")
-			return false,er
 			fs.req.Body.Close()
+			return false,er
+
 		}else {
-			log.Println(p)
 			for {
 				if count, e := p.Read(fs.buffer); e == io.EOF {
 					log.Println("info: Last buffer read!")
-
 					f.Close()
+
 					break
 				}else {
 					log.Println(count)
@@ -87,10 +85,11 @@ func (fs *FilesReceiver) BeforeRun() error {
 	var err error
 	fs.mprd, err = fs.req.MultipartReader()
 	if err != nil {
-		return err
 		fs.req.Body.Close()
+		return err
 	}
-	fs.buffer = make([]byte, FlushDiskSize)
+	fs.buffer = make([]byte, BufferSize)
+
 	return nil
 }
 func (fs *FilesReceiver) AfterStop() error {
