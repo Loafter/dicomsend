@@ -10,7 +10,6 @@ import (
 	"os"
 	"dicomsend/http_receiver"
 	"godownloader/monitor"
-	"time"
 )
 
 const htmlData = ""
@@ -96,6 +95,7 @@ func dummyOnFileDownload(path string)error {
 }
 
 func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	if fr, err := httpreciver.CreateReciver(w, r, dummyOnFileDownload); err != nil {
 		http.Error(w, "error: can't create reciver", http.StatusInternalServerError)
 	}else {
@@ -103,8 +103,9 @@ func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
 		srv.drs[mw.GetId()]=&mw
 		mw.Start()
 		mw.Wait()
+		log.Println(mw.GetState())
 	}
-	time.Sleep(10*time.Second)
+	log.Println("info: finish upload")
 }
 
 

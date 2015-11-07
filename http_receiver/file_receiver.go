@@ -51,25 +51,22 @@ func (fs *FilesReceiver) DoWork() (bool, error) {
 
 	p, err := fs.mprd.NextPart()
 	if err!=nil{
-		fs.req.Body.Close()
+		log.Println("info: part is out of")
 		return false,err
 	}
 	if p.FormName() == "files" {
 		//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
-		if f,er:=os.Create("C:\\Users\\andre\\Desktop\\Target"+sep()+genUid()); er!=nil{
+		if f, er := os.Create("/home/andrew/Desktop/da/" + sep() + genUid() + ".jpeg"); er != nil {
+			defer f.Close()
 			log.Println("error: can't create temp file")
-			fs.req.Body.Close()
 			return false,er
 
 		}else {
 			for {
 				if count, e := p.Read(fs.buffer); e == io.EOF {
-					log.Println("info: Last buffer read!")
-					f.Close()
-
-					break
+					log.Printf("info: file %v writed to disk \n", p.FileName())
+					return false, nil
 				}else {
-					log.Println(count)
 					f.Write(fs.buffer[0:count])
 				}
 
@@ -85,7 +82,6 @@ func (fs *FilesReceiver) BeforeRun() error {
 	var err error
 	fs.mprd, err = fs.req.MultipartReader()
 	if err != nil {
-		fs.req.Body.Close()
 		return err
 	}
 	fs.buffer = make([]byte, BufferSize)
