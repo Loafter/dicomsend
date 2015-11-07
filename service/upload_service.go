@@ -95,7 +95,7 @@ func dummyOnFileDownload(path string)error {
 	return nil
 }
 
-func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
+func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {10
 	if fr, err := httpreciver.CreateReciver(w, r, dummyOnFileDownload); err != nil {
 		http.Error(w, "error: can't create reciver", http.StatusInternalServerError)
 	}else {

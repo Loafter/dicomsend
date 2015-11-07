@@ -54,7 +54,9 @@ func (fs *FilesReceiver) DoWork() (bool, error) {
 		fs.req.Body.Close()
 		return false,err
 	}
+	log.Println(p.FileName())
 	if p.FormName() == "files" {
+
 		//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
 		if f,er:=os.Create("C:\\Users\\andre\\Desktop\\Target"+sep()+genUid()); er!=nil{
 			log.Println("error: can't create temp file")
@@ -69,7 +71,6 @@ func (fs *FilesReceiver) DoWork() (bool, error) {
 
 					break
 				}else {
-					log.Println(count)
 					f.Write(fs.buffer[0:count])
 				}
 
@@ -89,7 +90,6 @@ func (fs *FilesReceiver) BeforeRun() error {
 		return err
 	}
 	fs.buffer = make([]byte, BufferSize)
-
 	return nil
 }
 func (fs *FilesReceiver) AfterStop() error {
