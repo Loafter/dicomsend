@@ -57,37 +57,6 @@ func (srv *UpSrv) index(rwr http.ResponseWriter, req *http.Request) {
 	rwr.Write(content)
 }
 
-/*func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	rd, err := r.MultipartReader()
-	if err != nil {
-		log.Println("error: can't get MultipartReader")
-		return
-	}
-	buffer := make([]byte, FlushDiskSize)
-	for p, err := rd.NextPart(); err == nil; p, err = rd.NextPart() {
-		if p.FormName() == "files" {
-			//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
-			if f,er:=os.Create("C:\\Users\\andre\\Desktop\\Target"+sep()+genUid()); er!=nil{
-				log.Println("error: can't create temp file")
-				return
-			}else {
-				log.Println(p)
-				for {
-					if count, e := p.Read(buffer); e == io.EOF {
-						log.Println("info: Last buffer read!")
-						f.Close()
-						break
-					}else {
-						log.Println(count)
-						f.Write(buffer[0:count])
-					}
-
-				}
-			}
-		}
-	}
-}*/
 
 func dummyOnFileDownload(path string)error {
 	log.Println("info: i do some thing with file", path)
