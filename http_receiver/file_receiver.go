@@ -28,7 +28,7 @@ const BufferSize = 1024 * 1024
 
 type OnDownloadFunc func(path string) (error)
 
-type FilesReceiver struct {
+type DicomReceiver struct {
 	buffer   []byte
 	mprd     *multipart.Reader
 	rw       http.ResponseWriter
@@ -39,18 +39,18 @@ type FilesReceiver struct {
 
 }
 
-func CreateReciver(rw_ http.ResponseWriter, req_ *http.Request, odf OnDownloadFunc) (*FilesReceiver, error) {
+func CreateReciver(rw_ http.ResponseWriter, req_ *http.Request, odf OnDownloadFunc) (*DicomReceiver, error) {
 	if req_ == nil {
 		return nil, errors.New("error: empty http request")
 	}
-	var fs FilesReceiver
+	var fs DicomReceiver
 	fs.rw = rw_
 	fs.req = req_
 	fs.onDown = odf
 	return &fs, nil
 }
 
-func (fs *FilesReceiver) DoWork() (bool, error) {
+func (fs *DicomReceiver) DoWork() (bool, error) {
 	defer log.Printf("info: uploaded data %v percent \n", (fs.upPos * 100) / fs.dataSize)
 	p, err := fs.mprd.NextPart()
 	if err != nil {
@@ -97,10 +97,10 @@ func (fs *FilesReceiver) DoWork() (bool, error) {
 	fs.upPos = fs.dataSize
 	return false, nil
 }
-func (fs *FilesReceiver) GetProgress() interface{} {
+func (fs *DicomReceiver) GetProgress() interface{} {
 	return (fs.upPos * 100) / fs.dataSize
 }
-func (fs *FilesReceiver) BeforeRun() error {
+func (fs *DicomReceiver) BeforeRun() error {
 	var err error
 	fs.mprd, err = fs.req.MultipartReader()
 	fs.dataSize = fs.req.ContentLength
@@ -110,6 +110,6 @@ func (fs *FilesReceiver) BeforeRun() error {
 	fs.buffer = make([]byte, BufferSize)
 	return nil
 }
-func (fs *FilesReceiver) AfterStop() error {
+func (fs *DicomReceiver) AfterStop() error {
 	return nil
 }
