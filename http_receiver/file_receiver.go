@@ -54,7 +54,9 @@ func (fs *FilesReceiver) DoWork() (bool, error) {
 		log.Println("info: part is out of")
 		return false,err
 	}
+	log.Println(p.FileName())
 	if p.FormName() == "files" {
+
 		//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
 		if f, er := os.Create("/home/andrew/Desktop/da/" + sep() + genUid() + ".jpeg"); er != nil {
 			defer f.Close()
@@ -85,7 +87,6 @@ func (fs *FilesReceiver) BeforeRun() error {
 		return err
 	}
 	fs.buffer = make([]byte, BufferSize)
-
 	return nil
 }
 func (fs *FilesReceiver) AfterStop() error {
