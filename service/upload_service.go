@@ -42,6 +42,7 @@ func (srv *UpSrv) Start(listenPort int) error {
 	http.HandleFunc("/index.html", srv.index)
 	http.HandleFunc("/upload_dicom", srv.uploadDicom)
 	http.HandleFunc("/progress_upload.json", srv.progressJson)
+	http.HandleFunc("/delete_upload", srv.deleteUpload)
 	if err := http.ListenAndServe(":" + strconv.Itoa(listenPort), nil); err != nil {
 		return err
 	}
@@ -108,5 +109,29 @@ func (srv *UpSrv) progressJson(rwr http.ResponseWriter, req *http.Request) {
 		return
 	}
 	rwr.Write(js)
+
+}
+func (srv *UpSrv) deleteUpload(rwr http.ResponseWriter, req *http.Request) {
+	defer req.Body.Close()
+	rwr.Header().Set("Access-Control-Allow-Origin", "*")
+	bodyData, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		http.Error(rwr, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	var uid string
+	if err := json.Unmarshal(bodyData, &uid); err != nil {
+		http.Error(rwr, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	if val, ok := srv.drs[uid]; ok {
+		val.Stop()
+		delete(srv.drs, uid)
+	}else {
+		log.Println("warning: can't find upload with id ", uid)
+	}
+	rwr.Write([]byte{0})
 
 }
