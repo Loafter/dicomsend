@@ -91,7 +91,7 @@ func (srv *UpSrv) progressJson(rwr http.ResponseWriter, req *http.Request) {
 	rwr.Header().Set("Access-Control-Allow-Origin", "*")
 	jbs := make([]Upst, 0, len(srv.drs))
 	for ind, i := range srv.drs {
-		if i.GetState() != monitor.Running {
+		if i.GetState() == monitor.Running {
 			prs, _ := i.GetProgress().(int)
 			st := Upst{Uid:ind, Progress:prs}
 			jbs = append(jbs, st)

@@ -66,11 +66,14 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 	switch fn {
 	case "files":{
 		//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
-		if f, er := os.Create("/home/andrew/Desktop/da/" + sep() + genUid() + ".jpeg"); er != nil {
-			defer f.Close()
+		if f, er := os.Create("C:\\Users\\andre\\Desktop\\d" + sep() + genUid() + ".jpeg"); er != nil {
 			log.Println("error: can't create temp file")
 			return false, er
 		}else {
+			defer func() {
+				f.Close()
+				log.Println("info: file closed")
+			}()
 			for {
 				if count, e := p.Read(fs.buffer); e == io.EOF {
 					log.Printf("info: file %v writed to disk \n", p.FileName())
