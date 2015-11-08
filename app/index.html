@@ -75,14 +75,30 @@
 			$('#dropzone').on('dragleave', function() {
 				$(this).removeClass('hover');
 			});
-			$('#dropzone input').on('change', function(e) {
 
-				$('#f_port_id').val($('#port_id').val())
-				$('#f_aet_id').val($('#aet_id').val())
-				$('#f_server_id').val($('#server_id').val())
-				alert($('#f_port_id').val());
-				alert($('#f_aet_id').val());
-				alert($('#f_server_id').val());
+
+			$("form#form_data_id").submit(function(event) {
+				//disable the default form submission
+				event.preventDefault();
+				//grab all form data
+				var formData = new FormData($(this)[0]);
+
+				$.ajax({
+					url: 'http://localhost:9982/upload_dicom',
+					type: 'POST',
+					data: formData,
+					async: true,
+					cache: false,
+					contentType: false,
+					processData: false
+				});
+
+				return false;
+			});
+
+
+			$('#dropzone input').on('change', function(e) {
+				$('#form_data_id').submit()
 			});
 		});
 
@@ -120,7 +136,7 @@
 </div>
 </P>
 <table id="jqGrid"></table>
-<form action="http://localhost:9982/upload_dicom" method="post" enctype="multipart/form-data">
+<form action="http://localhost:9982/upload_dicom" method="post" enctype="multipart/form-data" id="form_data_id">
     <!--<input type="file" name="files" id="files" multiple>-->
     <input type="text" name="server" value="localhost" id="f_server_id" hidden/>
     <input type="text" name="port" value="104" id="f_port_id" hidden/>
@@ -130,7 +146,6 @@
         <div>dropzone</div>
         <input type="file" name="files" multiple directory webkitdirectory mozdirectory/>
     </div>
-    <input type="submit" name="submit" value="Submit">
 </form>
 <!-- Modal -->
 <div class="modal fade" id="myModal" role="dialog">

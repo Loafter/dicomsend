@@ -10,15 +10,21 @@ import (
 	"os"
 	"dicomsend/http_receiver"
 	"godownloader/monitor"
+	"encoding/json"
 )
 
 const htmlData = ""
 const FlushDiskSize = 1024 * 1024
 
+
 func genUid() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return fmt.Sprintf("%X-%X-%X-%X-%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+}
+type Upst struct {
+	Uid      string
+	Progress int
 }
 
 func sep() string {
@@ -35,6 +41,7 @@ func (srv *UpSrv) Start(listenPort int) error {
 	http.HandleFunc("/", srv.Redirect)
 	http.HandleFunc("/index.html", srv.index)
 	http.HandleFunc("/upload_dicom", srv.uploadDicom)
+	http.HandleFunc("/progress_upload.js", srv.progressJson)
 	if err := http.ListenAndServe(":" + strconv.Itoa(listenPort), nil); err != nil {
 		return err
 	}
@@ -78,3 +85,20 @@ func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
 }
 
 
+func (srv *UpSrv) progressJson(rwr http.ResponseWriter, req *http.Request) {
+	defer req.Body.Close()
+	rwr.Header().Set("Access-Control-Allow-Origin", "*")
+	jbs := make([]Upst, 0, len(srv.drs))
+	for ind, i := range srv.drs {
+		prs, _ := i.GetProgress().(int)
+		st := Upst{Uid:ind, Progress:prs}
+		jbs = append(jbs, st)
+	}
+	js, err := json.Marshal(jbs)
+	if err != nil {
+		http.Error(rwr, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	rwr.Write(js)
+
+}
