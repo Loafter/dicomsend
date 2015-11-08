@@ -51,10 +51,14 @@ func CreateReciver(rw_ http.ResponseWriter, req_ *http.Request, odf OnDownloadFu
 }
 
 func (fs *DicomReceiver) DoWork() (bool, error) {
-	defer log.Printf("info: uploaded data %v percent \n", (fs.upPos * 100) / fs.dataSize)
+	defer
+	func() {
+		log.Printf("info: uploaded data %v percent \n", (fs.upPos * 100) / fs.dataSize)
+	}()
 	p, err := fs.mprd.NextPart()
 	if err != nil {
 		log.Println("info: part is out of")
+		fs.upPos = fs.dataSize
 		return true, nil
 	}
 
@@ -66,7 +70,6 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 			defer f.Close()
 			log.Println("error: can't create temp file")
 			return false, er
-
 		}else {
 			for {
 				if count, e := p.Read(fs.buffer); e == io.EOF {
@@ -81,20 +84,43 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 		}
 	}
 	case "server":{
-		log.Println("detect server form")
+		var c int
+		if c, e := p.Read(fs.buffer); e == io.EOF {
+			log.Printf("error: can't read server form \n")
+			return false, e
+		}else {
+			s := string(fs.buffer[:c])
+			log.Println("info: server is ", s)
+		}
+		fs.upPos += int64(c)
 	}
 	case "port":{
-		log.Println("detect port form")
+		var c int
+		if c, e := p.Read(fs.buffer); e == io.EOF {
+			log.Printf("error: can't read port form \n")
+			return false, e
+		}else {
+			s := string(fs.buffer[:c])
+			log.Println("info: port is ", s)
+		}
+		fs.upPos += int64(c)
 	}
 	case "aetitle":{
-		log.Println("detect aetitle form")
+		var c int
+		if c, e := p.Read(fs.buffer); e == io.EOF {
+			log.Printf("error: can't read aetitle form \n")
+			return false, e
+		}else {
+			s := string(fs.buffer[:c])
+			log.Println("info: aetitle is ", s)
+		}
+		fs.upPos += int64(c)
 	}
 	default:{
 		log.Println("warning: unsupported form")
 	}
 	}
 
-	fs.upPos = fs.dataSize
 	return false, nil
 }
 func (fs *DicomReceiver) GetProgress() interface{} {

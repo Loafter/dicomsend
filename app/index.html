@@ -1,15 +1,170 @@
-<html>
-<title>DICOM Uploader</title>
-<body>
+<!doctype html>
 
+<html>
+
+<head>
+    <title>GO DOWNLOAD</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootswatch/3.0.0/journal/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" media="screen"
+          href="http://www.guriddo.net/demo/css/trirand/ui.jqgrid-bootstrap.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="http://www.guriddo.net/demo/js/trirand/jquery.jqGrid.min.js"></script>
+    <script type="text/javascript" src="http://www.guriddo.net/demo/js/trirand/i18n/grid.locale-en.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <style class="cp-pen-styles">
+        #dropzone {
+        position: relative;
+        border: 10px dotted grey;
+        border-radius: 20px;
+        color: grey;
+        font: bold 24px/200px arial;
+        height: 400px;
+        margin: 30px auto;
+        text-align: center;
+        width: 800px;
+        }
+
+        #dropzone.hover {
+        border: 10px solid #FE5;
+        color: #FE5;
+        }
+
+        #dropzone.dropped {
+        background: #222;
+        border: 10px solid #444;
+        }
+
+        #dropzone div {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        }
+
+        #dropzone [type="file"] {
+        cursor: pointer;
+        position: absolute;
+        opacity: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        }
+    </style>
+    <style type="text/css">
+        body {
+        padding-top: 50px;
+        padding-bottom: 20px;
+        }
+
+        .table .progress {
+        margin-bottom: 0px;
+        }
+    </style>
+    <script src='//assets.codepen.io/assets/common/stopExecutionOnTimeout.js?t=1'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script>
+		$(function() {
+			$('#dropzone').on('dragover', function() {
+				$(this).addClass('hover');
+			});
+			$('#dropzone').on('dragleave', function() {
+				$(this).removeClass('hover');
+			});
+			$('#dropzone input').on('change', function(e) {
+
+				$('#f_port_id').val($('#port_id').val())
+				$('#f_aet_id').val($('#aet_id').val())
+				$('#f_server_id').val($('#server_id').val())
+				alert($('#f_port_id').val());
+				alert($('#f_aet_id').val());
+				alert($('#f_server_id').val());
+			});
+		});
+
+    </script>
+</head>
+
+<body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">dicom dropbox</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setings <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a data-toggle="modal" data-target="#myModal">Node settings</a>
+                        </li>
+
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#about">About</a>
+                </li>
+            </ul>
+        </div>
+        <!--/.navbar-collapse -->
+    </div>
+</div>
+</P>
+<table id="jqGrid"></table>
 <form action="http://localhost:9982/upload_dicom" method="post" enctype="multipart/form-data">
     <!--<input type="file" name="files" id="files" multiple>-->
-    <input type="text" name="server"/>
-    <input type="text" name="port"/>
-    <input type="text" name="aetitle"/>
-    <input type="file" name="files" multiple directory webkitdirectory mozdirectory>
+    <input type="text" name="server" value="localhost" id="f_server_id" hidden/>
+    <input type="text" name="port" value="104" id="f_port_id" hidden/>
+    <input type="text" name="aetitle" value="AE_ARCH1" id="f_aet_id" hidden/>
+
+    <div id="dropzone">
+        <div>dropzone</div>
+        <input type="file" name="files" multiple directory webkitdirectory mozdirectory/>
+    </div>
     <input type="submit" name="submit" value="Submit">
 </form>
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Server settings</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="control-label">Server ip or name</label>
+
+                    <div class="controls">
+                        <input type="text" id="server_id" class="form-control" value="localhost">
+                    </div>
+                    <label class="control-label">Port</label>
+
+                    <div class="controls">
+                        <input type="text" id="port_id" class="form-control" value="104">
+                    </div>
+                    <label class="control-label">AE title</label>
+
+                    <div class="controls">
+                        <input type="text" id="aet_id" class="form-control" value="AE_ARCH1">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
 </body>
+
 </html>
