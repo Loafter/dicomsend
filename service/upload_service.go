@@ -33,11 +33,11 @@ func sep() string {
 	return st
 }
 type UpSrv struct {
-drs map[string]*monitor.MonitoredWorker
+	drs map[string]*monitor.MonitoredWorker
 }
 
 func (srv *UpSrv) Start(listenPort int) error {
-	srv.drs=make(map[string]*monitor.MonitoredWorker)
+	srv.drs = make(map[string]*monitor.MonitoredWorker)
 	http.HandleFunc("/", srv.Redirect)
 	http.HandleFunc("/index.html", srv.index)
 	http.HandleFunc("/upload_dicom", srv.uploadDicom)
@@ -65,7 +65,7 @@ func (srv *UpSrv) index(rwr http.ResponseWriter, req *http.Request) {
 }
 
 
-func dummyOnFileDownload(path string)error {
+func dummyOnFileDownload(path string) error {
 	log.Println("info: i do some thing with file", path)
 	return nil
 }
@@ -74,9 +74,10 @@ func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if fr, err := httpreciver.CreateReciver(w, r, dummyOnFileDownload); err != nil {
 		http.Error(w, "error: can't create reciver", http.StatusInternalServerError)
+
 	}else {
 		mw := monitor.MonitoredWorker{Itw:fr}
-		srv.drs[mw.GetId()]=&mw
+		srv.drs[mw.GetId()] = &mw
 		mw.Start()
 		mw.Wait()
 		log.Println(mw.GetState())
@@ -90,9 +91,14 @@ func (srv *UpSrv) progressJson(rwr http.ResponseWriter, req *http.Request) {
 	rwr.Header().Set("Access-Control-Allow-Origin", "*")
 	jbs := make([]Upst, 0, len(srv.drs))
 	for ind, i := range srv.drs {
-		prs, _ := i.GetProgress().(int)
-		st := Upst{Uid:ind, Progress:prs}
-		jbs = append(jbs, st)
+		if i.GetState() != monitor.Running {
+			prs, _ := i.GetProgress().(int)
+			st := Upst{Uid:ind, Progress:prs}
+			jbs = append(jbs, st)
+		}else {
+			delete(srv.drs, ind)
+		}
+
 	}
 	js, err := json.Marshal(jbs)
 	if err != nil {
