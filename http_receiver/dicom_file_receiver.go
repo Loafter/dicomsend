@@ -66,7 +66,7 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 	switch fn {
 	case "files":{
 		//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
-		if f, er := os.Create("C:\\Users\\andre\\Desktop\\d" + sep() + genUid() + ".jpeg"); er != nil {
+		if f, er := os.Create("/home/andrew/Desktop/da/" + sep() + genUid() + ".jpeg"); er != nil {
 			log.Println("error: can't create temp file")
 			return false, er
 		}else {
@@ -140,5 +140,6 @@ func (fs *DicomReceiver) BeforeRun() error {
 	return nil
 }
 func (fs *DicomReceiver) AfterStop() error {
+	fs.req.Body.Close()
 	return nil
 }

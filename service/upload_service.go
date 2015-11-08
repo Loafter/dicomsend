@@ -24,7 +24,7 @@ func genUid() string {
 }
 type Upst struct {
 	Uid      string
-	Progress int
+	Progress int64
 }
 
 func sep() string {
@@ -41,7 +41,7 @@ func (srv *UpSrv) Start(listenPort int) error {
 	http.HandleFunc("/", srv.Redirect)
 	http.HandleFunc("/index.html", srv.index)
 	http.HandleFunc("/upload_dicom", srv.uploadDicom)
-	http.HandleFunc("/progress_upload.js", srv.progressJson)
+	http.HandleFunc("/progress_upload.json", srv.progressJson)
 	if err := http.ListenAndServe(":" + strconv.Itoa(listenPort), nil); err != nil {
 		return err
 	}
@@ -92,7 +92,9 @@ func (srv *UpSrv) progressJson(rwr http.ResponseWriter, req *http.Request) {
 	jbs := make([]Upst, 0, len(srv.drs))
 	for ind, i := range srv.drs {
 		if i.GetState() == monitor.Running {
-			prs, _ := i.GetProgress().(int)
+
+			prs, _ := i.GetProgress().(int64)
+			//log.Println("________________________",i.GetProgress())
 			st := Upst{Uid:ind, Progress:prs}
 			jbs = append(jbs, st)
 		}else {
