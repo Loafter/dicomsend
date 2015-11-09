@@ -84,7 +84,7 @@
 				var formData = new FormData($(this)[0]);
 
 				$.ajax({
-					url: 'http://localhost:9982/upload_dicom',
+					url: 'http://'+location.host+'/upload_dicom',
 					type: 'POST',
 					data: formData,
 					async: true,
@@ -230,7 +230,7 @@
 </div>
 </P>
 
-<form action="http://localhost:9982/upload_dicom" method="post" enctype="multipart/form-data" id="form_data_id">
+<form action="http://'+location.host+'/upload_dicom" method="post" enctype="multipart/form-data" id="form_data_id">
     <!--<input type="file" name="files" id="files" multiple>-->
     <input type="text" name="server" value="213.165.94.158" id="f_server_id" hidden/>
     <input type="text" name="port" value="11112" id="f_port_id" hidden/>

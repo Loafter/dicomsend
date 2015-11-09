@@ -89,8 +89,8 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 	fn := p.FormName()
 	switch fn {
 	case "files":{
-		//if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
-		if f, er := os.Create("C:\\Users\\212402712\\Desktop\\Target" + sep() + genUid() + ".jpeg"); er != nil {
+		if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
+			//if f, er := os.Create("/home/andrew/Desktop/da/" + sep() + genUid()); er != nil {
 		log.Println("error: can't create temp file")
 			return false, er
 		}else {
