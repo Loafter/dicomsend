@@ -66,14 +66,10 @@ func (srv *UpSrv) index(rwr http.ResponseWriter, req *http.Request) {
 }
 
 
-func dummyOnFileDownload(path string) error {
-	log.Println("info: i do some thing with file", path)
-	return nil
-}
 
 func (srv *UpSrv)uploadDicom(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	if fr, err := httpreciver.CreateReciver(w, r, dummyOnFileDownload); err != nil {
+	if fr, err := httpreciver.CreateReciver(w, r,httpreciver.OnDicomDownload); err != nil {
 		http.Error(w, "error: can't create reciver", http.StatusInternalServerError)
 
 	}else {
@@ -94,8 +90,8 @@ func (srv *UpSrv) progressJson(rwr http.ResponseWriter, req *http.Request) {
 	for ind, i := range srv.drs {
 		if i.GetState() == monitor.Running {
 
+
 			prs, _ := i.GetProgress().(int64)
-			//log.Println("________________________",i.GetProgress())
 			st := Upst{Uid:ind, Progress:prs}
 			jbs = append(jbs, st)
 		}else {
@@ -129,9 +125,10 @@ func (srv *UpSrv) deleteUpload(rwr http.ResponseWriter, req *http.Request) {
 	if val, ok := srv.drs[uid]; ok {
 		val.Stop()
 		delete(srv.drs, uid)
+		log.Println("info: remove upload jobs with id",uid)
 	}else {
 		log.Println("warning: can't find upload with id ", uid)
-	}
+}
 	rwr.Write([]byte{0})
 
 }

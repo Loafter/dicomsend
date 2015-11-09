@@ -158,6 +158,16 @@
 				})
 		}
 
+
+        function deleteUp(e) {
+			$.ajax({
+				url: "delete_upload",
+				type: "POST",
+				data: JSON.stringify(e.id),
+				dataType: "json",
+			})
+		}
+
 		function UpdateData() {
 			var grid = $("#jqGrid");
 			var rowKey = grid.jqGrid('getGridParam', "selrow");
@@ -176,7 +186,7 @@
 
 		function FormatDellButton(cellValue, options, rowObject) {
 			var intVal = parseInt(cellValue);
-			var cellHtml = '<div class="controls"><a class="btn pull-left btn-danger btn-xs">STOP</a></div>'
+			var cellHtml = '<div class="controls"><a  onclick="deleteUp(this)" id="'  + cellValue + '" class="btn pull-left btn-success btn-xs">STOP</a></div>'
 			return cellHtml;
 		}
 
@@ -222,8 +232,8 @@
 
 <form action="http://localhost:9982/upload_dicom" method="post" enctype="multipart/form-data" id="form_data_id">
     <!--<input type="file" name="files" id="files" multiple>-->
-    <input type="text" name="server" value="localhost" id="f_server_id" hidden/>
-    <input type="text" name="port" value="104" id="f_port_id" hidden/>
+    <input type="text" name="server" value="213.165.94.158" id="f_server_id" hidden/>
+    <input type="text" name="port" value="11112" id="f_port_id" hidden/>
     <input type="text" name="aetitle" value="AE_ARCH1" id="f_aet_id" hidden/>
 
     <div id="dropzone">
