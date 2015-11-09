@@ -27,7 +27,7 @@ func genUid() string {
 func OnDicomDownload(param ...string) error {
 	gdcmscu:=os.Getenv("GDCMSCUP")
 	log.Println("info: i do some thing with file", param[3])
-	if out, err := exec.Command(gdcmscu, "-H",param[0],
+	 if out, err := exec.Command(gdcmscu, "-H",param[0],
 										 "-p",param[1],
 										"--call",param[2],
 										"--aetitle","AE_WEBCLI",
@@ -39,7 +39,6 @@ func OnDicomDownload(param ...string) error {
 		log.Printf("success: %s\n", out)
 	}
 	if err:=os.Remove(param[3]);err!=nil{
-		log.Println("error_____________________________________________________________________________________________________--:",err.Error())
 		return err
 	}
 	return nil
