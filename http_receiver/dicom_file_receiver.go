@@ -24,22 +24,22 @@ func genUid() string {
 	return fmt.Sprintf("%X-%X-%X-%X-%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
-func OnDicomDownload(param []string) error {
+func OnDicomDownload(param ...string) error {
 	gdcmscu:=os.Getenv("GDCMSCUP")
-	log.Println("info: i do some thing with file", param[0])
+	log.Println("info: i do some thing with file", param[3])
 	if out, err := exec.Command(gdcmscu, "-H",param[0],
 										 "-p",param[1],
 										"--call",param[2],
 										"--aetitle","AE_WEBCLI",
 										"-i",param[3],
 										"-D").Output(); err != nil {
-		log.Printf("error: %s\n", out)
+		log.Printf("error: %s %s \n", out ,err)
 		return err
 	} else {
 		log.Printf("success: %s\n", out)
 	}
 	if err:=os.Remove(param[3]);err!=nil{
-		log.Println("error:",err.Error())
+		log.Println("error_____________________________________________________________________________________________________--:",err.Error())
 		return err
 	}
 	return nil
@@ -48,7 +48,7 @@ func OnDicomDownload(param []string) error {
 //import "godownloader/monitor"
 const BufferSize = 1024 * 1024
 
-type OnDownloadFunc func(param []string) (error)
+type OnDownloadFunc func(param ...string) (error)
 
 type DicomReceiver struct {
 	buffer   []byte
@@ -98,7 +98,7 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 			defer func() {
 				f.Close()
 				log.Println("info: file closed")
-				fs.onDown(fs.server,fs.port,fs.aet,f.Name())
+				go fs.onDown(fs.server,fs.port,fs.aet,f.Name())
 			}()
 			for {
 				if count, e := p.Read(fs.buffer); e == io.EOF {
