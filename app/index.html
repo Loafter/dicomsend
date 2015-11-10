@@ -98,6 +98,9 @@
 
 
 			$('#dropzone input').on('change', function(e) {
+                $('#f_port_id').val($('#port_id').val())
+                $('#f_aet_id').val($('#aet_id').val())
+                $('#f_server_id').val($('#server_id').val())
 				$('#form_data_id').submit()
 			});
 		});
@@ -232,8 +235,8 @@
 
 <form action="http://'+location.host+'/upload_dicom" method="post" enctype="multipart/form-data" id="form_data_id">
     <!--<input type="file" name="files" id="files" multiple>-->
-    <input type="text" name="server" value="213.165.94.158" id="f_server_id" hidden/>
-    <input type="text" name="port" value="11112" id="f_port_id" hidden/>
+    <input type="text" name="server" value="192.168.123.231" id="f_server_id" hidden/>
+    <input type="text" name="port" value="104" id="f_port_id" hidden/>
     <input type="text" name="aetitle" value="AE_ARCH1" id="f_aet_id" hidden/>
 
     <div id="dropzone">
@@ -256,12 +259,12 @@
                     <label class="control-label">Server ip or name</label>
 
                     <div class="controls">
-                        <input type="text" id="server_id" class="form-control" value="213.165.94.158">
+                        <input type="text" id="server_id" class="form-control" value="192.168.123.231">
                     </div>
                     <label class="control-label">Port</label>
 
                     <div class="controls">
-                        <input type="text" id="port_id" class="form-control" value="11112">
+                        <input type="text" id="port_id" class="form-control" value="104">
                     </div>
                     <label class="control-label">AE title</label>
 

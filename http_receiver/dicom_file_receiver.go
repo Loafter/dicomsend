@@ -25,20 +25,25 @@ func genUid() string {
 }
 
 func OnDicomDownload(param ...string) error {
-	gdcmscu:=os.Getenv("GDCMSCUP")
-	log.Println("info: i do some thing with file", param[3])
-	 if out, err := exec.Command(gdcmscu, "-H",param[0],
-										 "-p",param[1],
-										"--call",param[2],
-										"--aetitle","AE_WEBCLI",
-										"-i",param[3],
-										"-D").Output(); err != nil {
-		log.Printf("error: %s %s \n", out ,err)
+	gdcmscu := os.Getenv("GDCMSCUP")
+	log.Println(gdcmscu, "--store", "-H", param[0], "-p", param[1],
+		"--call", param[2],
+		"--aetitle", "AE_WEBCLI",
+		"-i", param[3],
+		"-D")
+
+	if out, err := exec.Command(gdcmscu,"--store", "-H", param[0],
+		"-p", param[1],
+		"--call", param[2],
+		"--aetitle", "AE_WEBCLI",
+		"-i", param[3],
+		"-D").Output(); err != nil {
+		log.Printf("error: %s %s \n", out, err)
 		return err
 	} else {
 		log.Printf("success: %s\n", out)
 	}
-	if err:=os.Remove(param[3]);err!=nil{
+	if err := os.Remove(param[3]); err != nil {
 		return err
 	}
 	return nil
@@ -57,9 +62,9 @@ type DicomReceiver struct {
 	onDown   OnDownloadFunc
 	dataSize int64
 	upPos    int64
-	server string
-	port string
-	aet	string
+	server   string
+	port     string
+	aet      string
 
 }
 
@@ -91,13 +96,13 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 	case "files":{
 		if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
 			//if f, er := os.Create("/home/andrew/Desktop/da/" + sep() + genUid()); er != nil {
-		log.Println("error: can't create temp file")
+			log.Println("error: can't create temp file")
 			return false, er
 		}else {
 			defer func() {
 				f.Close()
 				log.Println("info: file closed")
-				go fs.onDown(fs.server,fs.port,fs.aet,f.Name())
+				go fs.onDown(fs.server, fs.port, fs.aet, f.Name())
 			}()
 			for {
 				if count, e := p.Read(fs.buffer); e == io.EOF {
@@ -119,7 +124,7 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 		}else {
 			s := string(fs.buffer[:c])
 			log.Println("info: server is ", s)
-			fs.server=s
+			fs.server = s
 		}
 		fs.upPos += int64(c)
 	}
@@ -131,7 +136,7 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 		}else {
 			s := string(fs.buffer[:c])
 			log.Println("info: port is ", s)
-			fs.port=s
+			fs.port = s
 		}
 		fs.upPos += int64(c)
 	}
@@ -143,7 +148,7 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 		}else {
 			s := string(fs.buffer[:c])
 			log.Println("info: aetitle is ", s)
-			fs.aet=s
+			fs.aet = s
 		}
 		fs.upPos += int64(c)
 	}
@@ -171,5 +176,5 @@ func (fs *DicomReceiver) AfterStop() error {
 	log.Println("info: body closed")
 	fs.rw.Write([]byte{0})
 	fs.req.Body.Close()
-return nil
+	return nil
 }
