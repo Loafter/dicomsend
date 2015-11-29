@@ -3,7 +3,7 @@ import (
 	"container/list"
 	"log"
 	"sync"
-	"time"
+	//"time"
 )
 type PbAction interface {
 	DoAction(pb*ParralelsBallancer, data interface{})
@@ -31,7 +31,7 @@ func (pb *ParralelsBallancer) startParallel(data interface{}) {
 			return
 		}else {
 			pb.dats.Remove(el)
-
+			pb.wgrun.Done()
 			go pb.StartNew(el.Value)
 		}
 	}
@@ -53,6 +53,7 @@ func (pb *ParralelsBallancer) StartNew(data interface{}) {
 		go pb.startParallel(data)
 	}else {
 		log.Println("info: overflow parralels jobs")
+		pb.wgrun.Add(1)
 		pb.dats.PushBack(data)
 	}
 
@@ -60,8 +61,8 @@ func (pb *ParralelsBallancer) StartNew(data interface{}) {
 
 func (pb *ParralelsBallancer) WaitAll() {
 	log.Println("info: wait all")
-	for count:=pb.dats.Len();count!=0;count=pb.dats.Len(){
+	/*for count:=pb.dats.Len();count!=0;count=pb.dats.Len(){
 		time.Sleep(100*time.Millisecond)
-	}
+	}*/
 	pb.wgrun.Wait()
 }

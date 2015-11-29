@@ -14,7 +14,7 @@ func (Dummy)DoAction(pb* parralels.ParralelsBallancer,data interface{}){
 }
 func main() {
 	pb:=parralels.ParralelsBallancer{}
-	pb.MaxParralels=1
+	pb.MaxParralels=30
 	pb.Pb=Dummy{}
  	for i:=0;i<20;i++{
 		pb.StartNew(i)
