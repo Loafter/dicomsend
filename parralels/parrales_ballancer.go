@@ -3,7 +3,6 @@ import (
 	"container/list"
 	"log"
 	"sync"
-	//"time"
 )
 type PbAction interface {
 	DoAction(pb*ParralelsBallancer, data interface{})
@@ -49,7 +48,6 @@ func (pb *ParralelsBallancer) StartNew(data interface{}) {
 	if pb.activeJobs < pb.MaxParralels {
 		pb.activeJobs += 1
 		pb.wgrun.Add(1)
-		log.Println("info: start parralels job",pb.activeJobs)
 		go pb.startParallel(data)
 	}else {
 		log.Println("info: overflow parralels jobs")
@@ -61,8 +59,5 @@ func (pb *ParralelsBallancer) StartNew(data interface{}) {
 
 func (pb *ParralelsBallancer) WaitAll() {
 	log.Println("info: wait all")
-	/*for count:=pb.dats.Len();count!=0;count=pb.dats.Len(){
-		time.Sleep(100*time.Millisecond)
-	}*/
 	pb.wgrun.Wait()
 }
