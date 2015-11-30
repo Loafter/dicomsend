@@ -37,6 +37,11 @@ type ParallelDicomSend struct {
 }
 func (ParallelDicomSend)DoAction(pb* parralels.ParralelsBallancer,data interface{}){
 	ds:=data.(DicomSendData)
+	defer func() {
+		if err := os.Remove(ds.FileName); err != nil {
+			log.Println(err)
+		}
+	}()
 	gdcmscu := os.Getenv("GDCMSCUP")
 	log.Println(gdcmscu, "--store", "-H", ds.Server, "-p", ds.Port,
 		"--call",ds.AET,
@@ -54,9 +59,6 @@ func (ParallelDicomSend)DoAction(pb* parralels.ParralelsBallancer,data interface
 		return
 	} else {
 		log.Printf("success: %s\n", out)
-	}
-	if err := os.Remove(ds.FileName); err != nil {
-		return
 	}
 	return
 }
@@ -116,7 +118,7 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 			}()
 			for {
 				if count, e := p.Read(fs.buffer); e == io.EOF {
-					log.Printf("info: file %v writed to disk \n", )
+					log.Printf("info: file %v writed to disk \n", f.Name())
 					return false, nil
 				}else {
 					f.Write(fs.buffer[0:count])
