@@ -1,5 +1,5 @@
 package main
-import (
+/*import (
 	"dicomsend/parralels"
 	"log"
 	"time"
@@ -8,8 +8,8 @@ type Dummy struct {
 
 }
 func (Dummy)DoAction(pb* parralels.ParralelsBallancer,data interface{}){
-	time.Sleep(time.Millisecond*1000)
-	log.Println("info: data=",data)
+time.Sleep(time.Millisecond*1000)
+log.Println("info: data=",data)
 
 }
 func main() {
@@ -21,8 +21,8 @@ func main() {
 	}
 	pb.WaitAll()
 	log.Println("done!!!!!!!")
-}
-/*import (
+}*/
+import (
 	"dicomsend/service"
 	"log"
 )
@@ -34,4 +34,3 @@ func main(){
 		return
 	}
 }
-*/

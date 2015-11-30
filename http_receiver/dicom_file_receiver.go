@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"os/exec"
+	"dicomsend/parralels"
 )
 func sep() string {
 	st := strconv.QuoteRune(os.PathSeparator)
@@ -24,42 +25,51 @@ func genUid() string {
 	return fmt.Sprintf("%X-%X-%X-%X-%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
-func OnDicomDownload(param ...string) error {
+type DicomSendData struct {
+	Server string
+	Port string
+	AET	string
+	FileName string
+}
+
+type ParallelDicomSend struct {
+
+}
+func (ParallelDicomSend)DoAction(pb* parralels.ParralelsBallancer,data interface{}){
+	ds:=data.(DicomSendData)
 	gdcmscu := os.Getenv("GDCMSCUP")
-	log.Println(gdcmscu, "--store", "-H", param[0], "-p", param[1],
-		"--call", param[2],
+	log.Println(gdcmscu, "--store", "-H", ds.Server, "-p", ds.Port,
+		"--call",ds.AET,
 		"--aetitle", "AE_WEBCLI",
-		"-i", param[3],
+		"-i", ds.FileName,
 		"-D")
 
-	if out, err := exec.Command(gdcmscu,"--store", "-H", param[0],
-		"-p", param[1],
-		"--call", param[2],
+	if out, err := exec.Command(gdcmscu, "--store", "-H", ds.Server, "-p", ds.Port,
+		"--call",ds.AET,
 		"--aetitle", "AE_WEBCLI",
-		"-i", param[3],
+		"-i", ds.FileName,
+		"-D",
 		"-D").Output(); err != nil {
-		log.Printf("error: %s %s \n", out, err)
-		return err
+		log.Printf("dicom send status : %s %s \n", out, err)
+		return
 	} else {
 		log.Printf("success: %s\n", out)
 	}
-	if err := os.Remove(param[3]); err != nil {
-		return err
+	if err := os.Remove(ds.FileName); err != nil {
+		return
 	}
-	return nil
+	return
 }
 
-//import "godownloader/monitor"
 const BufferSize = 1024 * 1024
 
-type OnDownloadFunc func(param ...string) (error)
 
 type DicomReceiver struct {
 	buffer   []byte
 	mprd     *multipart.Reader
 	rw       http.ResponseWriter
 	req      *http.Request
-	onDown   OnDownloadFunc
+	ps parralels.ParralelsBallancer
 	dataSize int64
 	upPos    int64
 	server   string
@@ -68,14 +78,14 @@ type DicomReceiver struct {
 
 }
 
-func CreateReciver(rw_ http.ResponseWriter, req_ *http.Request, odf OnDownloadFunc) (*DicomReceiver, error) {
+func CreateReciver(rw_ http.ResponseWriter, req_ *http.Request) (*DicomReceiver, error) {
 	if req_ == nil {
 		return nil, errors.New("error: empty http request")
 	}
 	var fs DicomReceiver
 	fs.rw = rw_
 	fs.req = req_
-	fs.onDown = odf
+	fs.ps = parralels.ParralelsBallancer{Pb:ParallelDicomSend{},MaxParralels:10}
 	return &fs, nil
 }
 
@@ -95,18 +105,18 @@ func (fs *DicomReceiver) DoWork() (bool, error) {
 	switch fn {
 	case "files":{
 		if f, er := os.Create(os.TempDir() + sep() + genUid()); er != nil {
-			//if f, er := os.Create("/home/andrew/Desktop/da/" + sep() + genUid()); er != nil {
 			log.Println("error: can't create temp file")
 			return false, er
 		}else {
 			defer func() {
 				f.Close()
 				log.Println("info: file closed")
-				go fs.onDown(fs.server, fs.port, fs.aet, f.Name())
+				dsd:=DicomSendData{Server:fs.server,Port:fs.port,AET:fs.aet,FileName:f.Name()}
+				fs.ps.StartNew(dsd)
 			}()
 			for {
 				if count, e := p.Read(fs.buffer); e == io.EOF {
-					log.Printf("info: file %v writed to disk \n", p.FileName())
+					log.Printf("info: file %v writed to disk \n", )
 					return false, nil
 				}else {
 					f.Write(fs.buffer[0:count])
