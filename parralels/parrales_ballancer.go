@@ -15,7 +15,18 @@ type  ParralelsBallancer struct {
 	Pb           PbAction
 	dats         *list.List
 }
+func (pb *ParralelsBallancer) ActiveJobs()int {
+	return pb.activeJobs
 
+}
+
+func (pb *ParralelsBallancer) SleepedJobs()int {
+	if pb.dats==nil{
+		return 0
+	}
+	return pb.dats.Len()
+
+}
 func (pb *ParralelsBallancer) startParallel(data interface{}) {
 	pb.Pb.DoAction(pb, data)
 	pb.lmut.Lock()
