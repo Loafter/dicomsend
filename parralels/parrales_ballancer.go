@@ -12,8 +12,10 @@ type  ParralelsBallancer struct {
 	lmut         sync.Mutex
 	activeJobs   int
 	MaxParralels int
+	MaxQuied int
 	Pb           PbAction
 	dats         *list.List
+	Done 		chan bool
 }
 func (pb *ParralelsBallancer) ActiveJobs()int {
 	return pb.activeJobs
@@ -34,6 +36,14 @@ func (pb *ParralelsBallancer) startParallel(data interface{}) {
 		pb.activeJobs -= 1
 		pb.lmut.Unlock()
 		pb.wgrun.Done()
+		log.Println("info: try emty slot")
+		select {
+		case pb.Done <- true:
+			log.Println("sent message")
+		default:
+			log.Println("no message sent")
+		}
+
 	}()
 	if (pb.activeJobs <= pb.MaxParralels) {
 		if el := pb.dats.Front(); el == nil {
@@ -55,6 +65,12 @@ func (pb *ParralelsBallancer) StartNew(data interface{}) {
 	if pb.dats == nil {
 		log.Println("info: list not inited")
 		pb.dats = list.New()
+	}
+	if pb.dats.Len()>pb.MaxQuied{
+		log.Println("info: wait free thread")
+		pb.lmut.Unlock()
+		<-pb.Done
+		pb.lmut.Lock()
 	}
 	if pb.activeJobs < pb.MaxParralels {
 		pb.activeJobs += 1

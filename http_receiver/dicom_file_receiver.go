@@ -87,7 +87,7 @@ func CreateReciver(rw_ http.ResponseWriter, req_ *http.Request) (*DicomReceiver,
 	var fs DicomReceiver
 	fs.rw = rw_
 	fs.req = req_
-	fs.ps = parralels.ParralelsBallancer{Pb:ParallelDicomSend{},MaxParralels:15}
+	fs.ps = parralels.ParralelsBallancer{Pb:ParallelDicomSend{},MaxParralels:15,Done:make(chan bool),MaxQuied:4096}
 	return &fs, nil
 }
 
