@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{16A5DBF8-9E89-4AFE-B343-E16BE5896283}
 AppName=Dicom Web Sender
-AppVersion=1.0
+AppVersion=1.1
 ;AppVerName=Dicom Web Sender 1.0
 AppPublisher=GE
 AppPublisherURL=http://www.ge.com/
@@ -16,8 +16,8 @@ AppUpdatesURL=http://www.ge.com/
 DefaultDirName={pf}\Dicom Web Sender
 DefaultGroupName=Dicom Web Sender
 DisableProgramGroupPage=yes
-OutputDir=C:\Users\212402712\
-OutputBaseFilename=setup
+OutputDir=C:\Users\212402712\Desktop
+OutputBaseFilename=Dicom Web Sender
 Compression=lzma
 SolidCompression=yes
 [Registry]
