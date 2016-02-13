@@ -4,12 +4,13 @@ import (
 	"log"
 	"time"
 "testing"
+	"math/rand"
 )
 type Dummy struct {
 
 }
 func (Dummy)DoAction(pb* parralels.ParralelsBallancer,data interface{}){
-time.Sleep(time.Millisecond*1000)
+time.Sleep(time.Millisecond*time.Duration(rand.Int63n(3000)))
 log.Println("info: data=",data)
 
 }
@@ -25,17 +26,4 @@ func TestParralelsBallancer(t *testing.T) {
 	}
 	pb.WaitAll()
 	log.Println("done!!!!!!!")
-}/*
-import (
-"testing"
-	"dicomsend/parralels"
-	"log"
-)
-type Dummy struct {
-
 }
-func (Dummy)DoAction(pb* parralels.ParralelsBallancer,data interface{}){
-	log.Println("info: data=",data)
-}
-func TestMultiPartDownloadPool(t *testing.T) {
-}*/
