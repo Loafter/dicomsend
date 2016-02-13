@@ -14,11 +14,13 @@ log.Println("info: data=",data)
 
 }
 func TestParralelsBallancer(t *testing.T) {
+
 	pb:=parralels.ParralelsBallancer{}
-	pb.MaxParralels=3
-	pb.MaxQuied=60
+	pb.MaxParralels=20
+	pb.MaxQuied=40
 	pb.Pb=Dummy{}
- 	for i:=0;i<200;i++{
+	pb.Done=make(chan bool)
+ 	for i:=0;i<2000;i++{
 		pb.StartNew(i)
 	}
 	pb.WaitAll()
