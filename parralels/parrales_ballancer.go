@@ -1,9 +1,11 @@
 package parralels
+
 import (
 	"container/list"
 	"log"
 	"sync"
 )
+
 type PbAction interface {
 	DoAction(pb*ParralelsBallancer, data interface{})
 }
@@ -12,18 +14,19 @@ type  ParralelsBallancer struct {
 	lmut         sync.Mutex
 	activeJobs   int
 	MaxParralels int
-	MaxQuied int
+	MaxQuied     int
 	Pb           PbAction
 	dats         *list.List
-	Done 		chan bool
+	Done         chan bool
 }
-func (pb *ParralelsBallancer) ActiveJobs()int {
+
+func (pb *ParralelsBallancer) ActiveJobs() int {
 	return pb.activeJobs
 
 }
 
-func (pb *ParralelsBallancer) SleepedJobs()int {
-	if pb.dats==nil{
+func (pb *ParralelsBallancer) SleepedJobs() int {
+	if pb.dats == nil {
 		return 0
 	}
 	return pb.dats.Len()
@@ -32,7 +35,7 @@ func (pb *ParralelsBallancer) SleepedJobs()int {
 func (pb *ParralelsBallancer) startParallel(data interface{}) {
 	pb.Pb.DoAction(pb, data)
 	pb.lmut.Lock()
-	defer func(){
+	defer func() {
 		pb.activeJobs -= 1
 		pb.lmut.Unlock()
 		pb.wgrun.Done()
@@ -56,7 +59,6 @@ func (pb *ParralelsBallancer) startParallel(data interface{}) {
 		}
 	}
 
-
 }
 func (pb *ParralelsBallancer) StartNew(data interface{}) {
 	log.Println("info: try start")
@@ -66,7 +68,7 @@ func (pb *ParralelsBallancer) StartNew(data interface{}) {
 		log.Println("info: list not inited")
 		pb.dats = list.New()
 	}
-	if pb.dats.Len()>pb.MaxQuied{
+	if pb.dats.Len() > pb.MaxQuied {
 		log.Println("info: wait free thread")
 		pb.lmut.Unlock()
 		<-pb.Done
