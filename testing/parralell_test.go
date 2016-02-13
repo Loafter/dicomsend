@@ -1,8 +1,9 @@
 package testing
-/*import (
+import (
 	"dicomsend/parralels"
 	"log"
 	"time"
+"testing"
 )
 type Dummy struct {
 
@@ -12,16 +13,17 @@ time.Sleep(time.Millisecond*1000)
 log.Println("info: data=",data)
 
 }
-func main() {
+func TestParralelsBallancer(t *testing.T) {
 	pb:=parralels.ParralelsBallancer{}
-	pb.MaxParralels=30
+	pb.MaxParralels=3
+	pb.MaxQuied=60
 	pb.Pb=Dummy{}
  	for i:=0;i<200;i++{
 		pb.StartNew(i)
 	}
 	pb.WaitAll()
 	log.Println("done!!!!!!!")
-}*/
+}/*
 import (
 "testing"
 	"dicomsend/parralels"
@@ -34,4 +36,4 @@ func (Dummy)DoAction(pb* parralels.ParralelsBallancer,data interface{}){
 	log.Println("info: data=",data)
 }
 func TestMultiPartDownloadPool(t *testing.T) {
-}
+}*/
